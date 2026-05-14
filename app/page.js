@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 
 const DEFAULT_DATA = {
   clientName: '', clientPhone: '', clientAddress: '', projectName: '',
@@ -252,7 +252,7 @@ function PdfPage2({ d }) {
           </div>
         </div>
         <div className="pdf-card">
-          <div className="pdf-card-title">What's Included ✓</div>
+          <div className="pdf-card-title">What&apos;s Included ✓</div>
           <ul className="pdf-bullet-list">
             {(d.whatsIncluded||[]).map((item,i)=><li key={i}>{item}</li>)}
           </ul>
@@ -397,6 +397,8 @@ export default function Home() {
           companyTagline: 'Biophilic gardens for urban, institutional & community spaces',
           clientName: d.clientName,
           siteAddress: d.clientAddress,
+          projectName: d.projectName,
+          projectLocation: d.projectLocation,
           projectType: d.projectType,
           estimateDate: d.estimateDate,
           validUntil: d.validUntil,
@@ -438,7 +440,14 @@ export default function Home() {
           },
         }),
       })
-      if (!res.ok) throw new Error('Failed')
+      if (!res.ok) {
+        let message = 'Failed to generate PDF'
+        try {
+          const errorBody = await res.json()
+          message = errorBody?.error || errorBody?.details || message
+        } catch {}
+        throw new Error(message)
+      }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -447,7 +456,7 @@ export default function Home() {
       a.click()
       URL.revokeObjectURL(url)
     } catch (e) {
-      alert('Failed to generate PDF. Please check all required fields.')
+      alert(`${e.message || 'Failed to generate PDF'}. Please check all required fields.`)
     } finally {
       setGenerating(false)
     }
@@ -584,7 +593,7 @@ export default function Home() {
 
         {/* WHAT'S INCLUDED */}
         <div className="form-section">
-          <div className="form-section-header">What's Included</div>
+          <div className="form-section-header">What&apos;s Included</div>
           <div className="form-section-body">
             {d.whatsIncluded.map((item,i)=>(
               <div key={i} className="form-group">
